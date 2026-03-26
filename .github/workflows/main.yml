@@ -1,0 +1,42 @@
+name: Build and Auto-Release
+
+on:
+  push:
+    branches: [master] # Triggered on every push to master
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Setup Node ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install & Build 🏗️
+        run: |
+          npm install
+          npm run build
+
+      - name: Zip Dist Folder 📂
+        # -r for recursive, -j to junk the paths (files at root of zip)
+        run: zip -rj build-artifact.zip dist/
+
+      - name: Create Release 🚀
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_id }}
+          name: Master Build ${{ github.run_number }}
+          files: build-artifact.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
