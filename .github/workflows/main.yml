@@ -2,7 +2,7 @@ name: Build and Auto-Release
 
 on:
   push:
-    branches: [master] # Triggered on every push to master
+    branches: [master]
 
 permissions:
   contents: write
@@ -18,16 +18,17 @@ jobs:
       - name: Setup Node ⚙️
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Updated to Node 22 to satisfy package requirements
+          node-version: 22
           cache: 'npm'
 
-      - name: Install & Build 🏗️
-        run: |
-          npm install
-          npm run build
+      - name: Install Dependencies 📦
+        run: npm install
+
+      - name: Build Project 🏗️
+        run: npm run build
 
       - name: Zip Dist Folder 📂
-        # -r for recursive, -j to junk the paths (files at root of zip)
         run: zip -rj build-artifact.zip dist/
 
       - name: Create Release 🚀
